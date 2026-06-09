@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Astronomical Polarization Seminar Series</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Inter:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy:   #0A0E1A;
+      --slate:  #1C2340;
+      --violet: #7B5EA7;
+      --teal:   #4ECDC4;
+      --white:  #F0EEF8;
+      --silver: #8A9BB5;
+      --border: rgba(78,205,196,0.18);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--navy);
+      color: var(--white);
+      font-family: 'Inter', sans-serif;
+      font-weight: 300;
+      line-height: 1.7;
+      min-height: 100vh;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.1rem 3rem;
+      background: rgba(10,14,26,0.85);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      letter-spacing: 0.18em;
+      color: var(--teal);
+      text-transform: uppercase;
+    }
+    .nav-links { display: flex; gap: 2.2rem; list-style: none; }
+    .nav-links a {
+      font-size: 0.82rem; font-weight: 400; letter-spacing: 0.08em;
+      color: var(--silver); text-decoration: none; text-transform: uppercase;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--teal); }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center;
+      padding: 7rem 2rem 4rem;
+      position: relative; overflow: hidden;
+    }
+    .stars {
+      position: absolute; inset: 0; pointer-events: none;
+      background:
+        radial-gradient(1px 1px at 15% 20%, rgba(240,238,248,0.6) 0%, transparent 100%),
+        radial-gradient(1px 1px at 72% 8%,  rgba(240,238,248,0.5) 0%, transparent 100%),
+        radial-gradient(1.5px 1.5px at 40% 60%, rgba(240,238,248,0.4) 0%, transparent 100%),
+        radial-gradient(1px 1px at 88% 45%, rgba(240,238,248,0.5) 0%, transparent 100%),
+        radial-gradient(1px 1px at 5%  80%, rgba(240,238,248,0.4) 0%, transparent 100%),
+        radial-gradient(1px 1px at 60% 88%, rgba(240,238,248,0.3) 0%, transparent 100%),
+        radial-gradient(1px 1px at 30% 35%, rgba(240,238,248,0.5) 0%, transparent 100%),
+        radial-gradient(1.5px 1.5px at 92% 70%, rgba(240,238,248,0.4) 0%, transparent 100%),
+        radial-gradient(1px 1px at 50% 15%, rgba(78,205,196,0.4) 0%, transparent 100%),
+        radial-gradient(1px 1px at 20% 55%, rgba(123,94,167,0.4) 0%, transparent 100%);
+    }
+    #polCanvas { display: block; margin: 0 auto 2.2rem; opacity: 0.9; }
+
+    .hero-eyebrow {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem; letter-spacing: 0.28em;
+      color: var(--teal); text-transform: uppercase; margin-bottom: 1.1rem;
+    }
+    h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+      font-size: clamp(2.8rem, 7vw, 5.6rem);
+      line-height: 1.08; letter-spacing: -0.01em;
+      color: var(--white); margin-bottom: 0.4rem;
+    }
+    h1 em { font-style: italic; color: var(--teal); }
+
+    .hero-sub {
+      font-size: 1rem; color: var(--silver);
+      max-width: 520px; margin: 1.4rem auto 2.4rem; font-weight: 300;
+    }
+    .hero-meta {
+      display: flex; gap: 2.4rem; justify-content: center;
+      flex-wrap: wrap; margin-bottom: 2.8rem;
+    }
+    .hero-meta span {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.76rem; color: var(--silver); letter-spacing: 0.1em;
+    }
+    .hero-meta span strong { color: var(--white); font-weight: 500; }
+
+    /* timezone strip */
+    .tz-strip {
+      display: flex; gap: 0; flex-wrap: wrap; justify-content: center;
+      border: 1px solid var(--border); border-radius: 3px;
+      overflow: hidden; margin-bottom: 2.8rem;
+    }
+    .tz-item {
+      padding: 0.55rem 1.2rem;
+      border-right: 1px solid var(--border);
+      text-align: center;
+    }
+    .tz-item:last-child { border-right: none; }
+    .tz-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.6rem; letter-spacing: 0.18em;
+      color: var(--silver); text-transform: uppercase; margin-bottom: 0.1rem;
+    }
+    .tz-time {
+      font-size: 0.9rem; color: var(--white); font-weight: 500;
+    }
+    .tz-item.highlight { background: rgba(78,205,196,0.08); }
+    .tz-item.highlight .tz-time { color: var(--teal); }
+
+    .btn-group { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+    .btn {
+      display: inline-block; padding: 0.72rem 1.8rem; border-radius: 2px;
+      font-size: 0.8rem; font-weight: 500; letter-spacing: 0.12em;
+      text-transform: uppercase; text-decoration: none;
+      transition: all 0.22s; cursor: pointer;
+    }
+    .btn-primary { background: var(--teal); color: var(--navy); border: 1px solid var(--teal); }
+    .btn-primary:hover { background: transparent; color: var(--teal); }
+    .btn-outline { background: transparent; color: var(--white); border: 1px solid rgba(240,238,248,0.25); }
+    .btn-outline:hover { border-color: var(--teal); color: var(--teal); }
+
+    /* ── SECTIONS ── */
+    section { padding: 5rem 2rem; }
+    .container { max-width: 960px; margin: 0 auto; }
+    .section-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem; letter-spacing: 0.26em;
+      color: var(--teal); text-transform: uppercase; margin-bottom: 0.6rem;
+    }
+    h2 {
+      font-family: 'Cormorant Garamond', serif; font-weight: 300;
+      font-size: clamp(2rem, 4vw, 3rem); color: var(--white);
+      line-height: 1.15; margin-bottom: 2.4rem;
+    }
+    h2 em { font-style: italic; color: var(--teal); }
+    .divider { width: 48px; height: 1px; background: linear-gradient(90deg, var(--teal), transparent); margin-bottom: 1.6rem; }
+
+    /* ── ABOUT ── */
+    #about { background: var(--slate); }
+    .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: start; }
+    .about-text p { color: var(--silver); font-size: 0.97rem; margin-bottom: 1.1rem; }
+    .about-text p strong { color: var(--white); font-weight: 500; }
+    .about-topics { list-style: none; }
+    .about-topics li {
+      padding: 0.65rem 0; border-bottom: 1px solid var(--border);
+      font-size: 0.9rem; color: var(--silver);
+      display: flex; align-items: center; gap: 0.7rem;
+    }
+    .about-topics li::before {
+      content: ''; display: inline-block; width: 6px; height: 6px;
+      border-radius: 50%; background: var(--violet); flex-shrink: 0;
+    }
+
+    /* ── TALKS ── */
+    #talks { background: var(--navy); }
+    .talk-list { display: flex; flex-direction: column; gap: 1px; margin-bottom: 3rem; }
+    .talk-card {
+      background: var(--slate); border: 1px solid var(--border);
+      border-left: 3px solid transparent; padding: 1.4rem 1.8rem;
+      display: grid; grid-template-columns: 110px 1fr auto;
+      gap: 1.4rem; align-items: start;
+      transition: border-left-color 0.2s, background 0.2s;
+    }
+    .talk-card:hover { border-left-color: var(--teal); background: #1f2845; }
+    .talk-card.tbd { opacity: 0.45; }
+    .talk-date {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem; color: var(--teal); line-height: 1.5; letter-spacing: 0.06em;
+    }
+    .talk-date .day { display: block; font-size: 1.6rem; font-weight: 500; line-height: 1; color: var(--white); margin-bottom: 0.15rem; }
+    .talk-title { font-family: 'Cormorant Garamond', serif; font-size: 1.05rem; color: var(--silver); font-style: italic; }
+    .talk-actions { display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-end; }
+    .tag {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.65rem;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      padding: 0.25rem 0.6rem; border-radius: 2px;
+    }
+    .tag-tbd { background: rgba(138,155,181,0.1); color: var(--silver); border: 1px solid rgba(138,155,181,0.2); }
+
+    /* ── ORGANIZERS ── */
+    #organizers { background: var(--slate); }
+    .org-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1.2rem; }
+    .org-card {
+      padding: 1.4rem 1.6rem;
+      border: 1px solid var(--border); border-radius: 2px;
+      min-height: 90px;
+    }
+    .org-placeholder {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem; letter-spacing: 0.14em;
+      color: rgba(138,155,181,0.35); text-transform: uppercase;
+    }
+    .org-note {
+      margin-top: 2rem; font-size: 0.83rem; color: var(--silver);
+    }
+    .org-note a { color: var(--teal); text-decoration: none; }
+
+    /* ── JOIN ── */
+    #join { background: var(--navy); text-align: center; }
+    #join h2 { margin-bottom: 0.8rem; }
+    #join > .container > p { color: var(--silver); max-width: 480px; margin: 0 auto 2rem; font-size: 0.95rem; }
+    .join-tz {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 1px; border: 1px solid var(--border); border-radius: 3px; overflow: hidden;
+      max-width: 700px; margin: 0 auto 2.4rem;
+    }
+    .jtz {
+      padding: 1rem 1.2rem; background: var(--slate); text-align: left;
+    }
+    .jtz-flag { font-size: 1.2rem; margin-bottom: 0.3rem; }
+    .jtz-country { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; letter-spacing: 0.14em; color: var(--silver); text-transform: uppercase; margin-bottom: 0.2rem; }
+    .jtz-time { font-size: 1rem; color: var(--white); font-weight: 500; }
+    .jtz-zone { font-size: 0.72rem; color: var(--silver); }
+    .jtz.highlight { background: rgba(78,205,196,0.07); }
+    .jtz.highlight .jtz-time { color: var(--teal); }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--slate); border-top: 1px solid var(--border);
+      padding: 2rem 3rem;
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 1rem;
+    }
+    footer p { font-size: 0.78rem; color: var(--silver); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 720px) {
+      nav { padding: 1rem 1.4rem; }
+      .nav-links { display: none; }
+      .about-grid { grid-template-columns: 1fr; }
+      .talk-card { grid-template-columns: 80px 1fr; }
+      .talk-actions { display: none; }
+      .tz-strip { display: none; }
+      footer { flex-direction: column; text-align: center; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      * { animation: none !important; transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">Polarization Seminar</div>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#talks">Schedule</a></li>
+    <li><a href="#organizers">Organizers</a></li>
+    <li><a href="#join">Join</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="stars"></div>
+  <canvas id="polCanvas" width="640" height="130"></canvas>
+  <p class="hero-eyebrow">International Seminar Series · Fall 2026</p>
+  <h1>Astronomical<br><em>Polarization</em><br>Seminar Series</h1>
+  <p class="hero-sub">
+    Exploring the geometry of light — from magnetic fields and dust grains
+    to scattering atmospheres — across interstellar scales to exoplanet surfaces.
+    A globally inclusive, weekly online seminar.
+  </p>
+
+  <!-- timezone strip -->
+  <div class="tz-strip">
+    <div class="tz-item highlight">
+      <div class="tz-label">MST (Arizona)</div>
+      <div class="tz-time">7:30 AM</div>
+    </div>
+    <div class="tz-item">
+      <div class="tz-label">India (IST)</div>
+      <div class="tz-time">8:00 PM</div>
+    </div>
+    <div class="tz-item">
+      <div class="tz-label">UK (BST)</div>
+      <div class="tz-time">3:30 PM</div>
+    </div>
+    <div class="tz-item">
+      <div class="tz-label">CET (Europe)</div>
+      <div class="tz-time">4:30 PM</div>
+    </div>
+    <div class="tz-item">
+      <div class="tz-label">South Africa (SAST)</div>
+      <div class="tz-time">4:30 PM</div>
+    </div>
+    <div class="tz-item">
+      <div class="tz-label">UTC</div>
+      <div class="tz-time">2:30 PM</div>
+    </div>
+  </div>
+
+  <div class="hero-meta">
+    <span><strong>Tuesdays</strong> · 7:30 AM MST</span>
+    <span><strong>Aug 18 – Dec 15, 2026</strong></span>
+    <span><strong>Online</strong> · Zoom</span>
+  </div>
+  <div class="btn-group">
+    <a href="#talks" class="btn btn-primary">View Schedule</a>
+    <a href="#join" class="btn btn-outline">Subscribe</a>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="container">
+    <div class="about-grid">
+      <div class="about-text">
+        <p class="section-label">About the series</p>
+        <h2>Light carries<br><em>geometry</em></h2>
+        <div class="divider"></div>
+        <p>
+          Polarimetry is one of astrophysics' most informative—and most
+          underutilized—observational windows. This seminar brings together
+          observers, theorists, and instrumentalists from around the world
+          to build a shared language around polarized light across all wavelength regimes.
+        </p>
+        <p>
+          Talks span <strong>radio, infrared, optical, and X-ray polarimetry</strong>,
+          with emphasis on connecting multi-wavelength observations to the
+          underlying physical processes: magnetic field topology, dust alignment,
+          scattering, and synchrotron emission.
+        </p>
+        <p>
+          The series is open to all. Graduate students are especially encouraged
+          to present work in progress. The time is chosen to be accessible from
+          the Americas, Europe, Africa, and Asia simultaneously.
+        </p>
+      </div>
+      <div>
+        <p class="section-label">Topics covered</p>
+        <ul class="about-topics" style="margin-top:1.4rem;">
+          <li>Magnetic field structure in the ISM &amp; GMCs</li>
+          <li>Dust grain alignment mechanisms (RAT, MAT)</li>
+          <li>Protostellar &amp; disk polarization (ALMA, PRIMA)</li>
+          <li>Scattering polarization in protoplanetary disks</li>
+          <li>Exoplanet atmosphere polarimetry</li>
+          <li>CMB foreground polarization</li>
+          <li>Polarimetry of compact objects &amp; jets</li>
+          <li>Synchrotron &amp; Faraday rotation</li>
+          <li>Next-generation instrumentation (ngVLA, ELTs)</li>
+          <li>Radiative transfer &amp; modeling frameworks</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TALKS -->
+<section id="talks">
+  <div class="container">
+    <p class="section-label">Schedule</p>
+    <h2>Fall <em>2026</em></h2>
+    <p style="color:var(--silver);font-size:0.88rem;margin-top:-1.6rem;margin-bottom:2rem;">
+      Aug 18 – Dec 15 · Every Tuesday · 7:30 AM MST
+    </p>
+
+    <div class="talk-list">
+
+      <div class="talk-card tbd">
+        <div class="talk-date"><span class="day">18</span>Aug<br>2026</div>
+        <div class="talk-info"><div class="talk-title">Speaker to be confirmed</div></div>
+        <div class="talk-actions"><span class="tag tag-tbd">TBD</span></div>
+      </div>
+
+      <div class="talk-card tbd">
+        <div class="talk-date"><span class="day">25</span>Aug<br>2026</div>
+        <div class="talk-info"><div class="talk-title">Speaker to be confirmed</div></div>
+        <div class="talk-actions"><span class="tag tag-tbd">TBD</span></div>
+      </div>
+
+      <div class="talk-card tbd">
+        <div class="talk-date"><span class="day">01</span>Sep<br>2026</div>
+        <div class="talk-info"><div class="talk-title">Speaker to be confirmed</div></div>
+        <div class="talk-actions"><span class="tag tag-tbd">TBD</span></div>
+      </div>
+
+      <div class="talk-card tbd">
+        <div class="talk-date"><span class="day">08</span>Sep<br>2026</div>
+        <div class="talk-info"><div class="talk-title">Speaker to be confirmed</div></div>
+        <div class="talk-actions"><span class="tag tag-tbd">TBD</span></div>
+      </div>
+
+      <div class="talk-card tbd">
+        <div class="talk-date"><span class="day">15</span>Sep<br>2026</div>
+        <div class="talk-info"><div class="talk-title">Speaker to be confirmed</div></div>
+        <div class="talk-actions"><span class="tag tag-tbd">TBD</span></div>
+      </div>
+
+      <div class="talk-card tbd">
+        <div class="talk-date"><span class="day">22</span>Sep<br>2026</div>
+        <div class="talk-info"><div class="talk-title">Speaker to be confirmed</div></div>
+        <div class="talk-actions"><span class="tag tag-tbd">TBD</span></div>
+      </div>
+
+      <div class="talk-card tbd">
+        <div class="talk-date"><span class="day">29</span>Sep<br>2026</div>
+        <div class="talk-info"><div class="talk-title">Speaker to be confirmed</div></div>
+        <div class="talk-actions"><span class="tag tag-tbd">TBD</span></div>
+      </div>
+
+      <div class="talk-card tbd">
+        <div class="talk-date"><span class="day">06</span>Oct<br>2026</div>
+        <div class="talk-info"><div class="talk-title">Speaker to be confirmed</div></div>
+        <div class="talk-actions"><span class="tag tag-tbd">TBD</span></div>
+      </div>
+
+      <div class="talk-card tbd">
+        <div class="talk-date"><span class="day">13</span>Oct<br>2026</div>
+        <div class="talk-info"><div class="talk-title">Speaker to be confirmed</div></div>
+        <div class="talk-actions"><span class="tag tag-tbd">TBD</span></div>
+      </div>
+
+      <div class="talk-card tbd">
+        <div class="talk-date"><span class="day">20</span>Oct<br>2026</div>
+        <div class="talk-info"><div class="talk-title">Speaker to be confirmed</div></div>
+        <div class="talk-actions"><span class="tag tag-tbd">TBD</span></div>
+      </div>
+
+      <div class="talk-card tbd">
+        <div class="talk-date"><span class="day">27</span>Oct<br>2026</div>
+        <div class="talk-info"><div class="talk-title">Speaker to be confirmed</div></div>
+        <div class="talk-actions"><span class="tag tag-tbd">TBD</span></div>
+      </div>
+
+      <div class="talk-card tbd">
+        <div class="talk-date"><span class="day">03</span>Nov<br>2026</div>
+        <div class="talk-info"><div class="talk-title">Speaker to be confirmed</div></div>
+        <div class="talk-actions"><span class="tag tag-tbd">TBD</span></div>
+      </div>
+
+      <div class="talk-card tbd">
+        <div class="talk-date"><span class="day">10</span>Nov<br>2026</div>
+        <div class="talk-info"><div class="talk-title">Speaker to be confirmed</div></div>
+        <div class="talk-actions"><span class="tag tag-tbd">TBD</span></div>
+      </div>
+
+      <div class="talk-card tbd">
+        <div class="talk-date"><span class="day">17</span>Nov<br>2026</div>
+        <div class="talk-info"><div class="talk-title">Speaker to be confirmed</div></div>
+        <div class="talk-actions"><span class="tag tag-tbd">TBD</span></div>
+      </div>
+
+      <div class="talk-card tbd">
+        <div class="talk-date"><span class="day">24</span>Nov<br>2026</div>
+        <div class="talk-info"><div class="talk-title">Speaker to be confirmed</div></div>
+        <div class="talk-actions"><span class="tag tag-tbd">TBD</span></div>
+      </div>
+
+      <div class="talk-card tbd">
+        <div class="talk-date"><span class="day">01</span>Dec<br>2026</div>
+        <div class="talk-info"><div class="talk-title">Speaker to be confirmed</div></div>
+        <div class="talk-actions"><span class="tag tag-tbd">TBD</span></div>
+      </div>
+
+      <div class="talk-card tbd">
+        <div class="talk-date"><span class="day">08</span>Dec<br>2026</div>
+        <div class="talk-info"><div class="talk-title">Speaker to be confirmed</div></div>
+        <div class="talk-actions"><span class="tag tag-tbd">TBD</span></div>
+      </div>
+
+      <div class="talk-card tbd">
+        <div class="talk-date"><span class="day">15</span>Dec<br>2026</div>
+        <div class="talk-info"><div class="talk-title">Speaker to be confirmed</div></div>
+        <div class="talk-actions"><span class="tag tag-tbd">TBD</span></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ORGANIZERS -->
+<section id="organizers">
+  <div class="container">
+    <p class="section-label">People</p>
+    <h2>Series <em>Organizers</em></h2>
+    <div class="divider"></div>
+    <div class="org-grid">
+      <div class="org-card"><div class="org-placeholder">Organizer</div></div>
+      <div class="org-card"><div class="org-placeholder">Organizer</div></div>
+      <div class="org-card"><div class="org-placeholder">Organizer</div></div>
+      <div class="org-card"><div class="org-placeholder">Organizer</div></div>
+    </div>
+    <p class="org-note">
+      Interested in presenting? Contact the organizers to reserve a slot.
+    </p>
+  </div>
+</section>
+
+<!-- JOIN -->
+<section id="join">
+  <div class="container">
+    <p class="section-label">Stay Connected</p>
+    <h2>Never miss<br>a <em>talk</em></h2>
+    <p>Subscribe to receive weekly Zoom links, speaker announcements, and access to recorded talks.</p>
+
+    <div class="join-tz">
+      <div class="jtz highlight">
+        <div class="jtz-flag">🇺🇸</div>
+        <div class="jtz-country">USA (Arizona)</div>
+        <div class="jtz-time">7:30 AM</div>
+        <div class="jtz-zone">MST (UTC−7)</div>
+      </div>
+      <div class="jtz">
+        <div class="jtz-flag">🇬🇧</div>
+        <div class="jtz-country">United Kingdom</div>
+        <div class="jtz-time">3:30 PM</div>
+        <div class="jtz-zone">BST (UTC+1)</div>
+      </div>
+      <div class="jtz">
+        <div class="jtz-flag">🇪🇺</div>
+        <div class="jtz-country">Central Europe</div>
+        <div class="jtz-time">4:30 PM</div>
+        <div class="jtz-zone">CEST (UTC+2)</div>
+      </div>
+      <div class="jtz">
+        <div class="jtz-flag">🇿🇦</div>
+        <div class="jtz-country">South Africa</div>
+        <div class="jtz-time">4:30 PM</div>
+        <div class="jtz-zone">SAST (UTC+2)</div>
+      </div>
+      <div class="jtz">
+        <div class="jtz-flag">🇮🇳</div>
+        <div class="jtz-country">India</div>
+        <div class="jtz-time">8:00 PM</div>
+        <div class="jtz-zone">IST (UTC+5:30)</div>
+      </div>
+    </div>
+
+    <div class="btn-group">
+      <a href="#" class="btn btn-primary">Subscribe to Mailing List</a>
+      <a href="#" class="btn btn-outline">YouTube Archive</a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p>© 2026 Astronomical Polarization Seminar Series</p>
+  <p style="color:var(--silver);font-size:0.75rem;">An international, community-driven seminar</p>
+</footer>
+
+<!-- POLARIZATION WAVE ANIMATION -->
+<script>
+(function() {
+  const canvas = document.getElementById('polCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const cx = H / 2;
+  let t = 0;
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    const amp = 40, freq = 2 * Math.PI / 120, speed = 0.04;
+
+    ctx.strokeStyle = 'rgba(138,155,181,0.25)';
+    ctx.lineWidth = 1; ctx.setLineDash([4, 6]);
+    ctx.beginPath(); ctx.moveTo(20, cx); ctx.lineTo(W - 20, cx);
+    ctx.stroke(); ctx.setLineDash([]);
+
+    ctx.strokeStyle = '#4ECDC4'; ctx.lineWidth = 2.2;
+    ctx.shadowColor = '#4ECDC4'; ctx.shadowBlur = 6;
+    ctx.beginPath();
+    for (let x = 20; x <= W - 20; x++) {
+      const y = cx - amp * Math.sin(freq * x - t);
+      x === 20 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+
+    ctx.strokeStyle = '#7B5EA7'; ctx.lineWidth = 1.6;
+    ctx.shadowColor = '#7B5EA7'; ctx.shadowBlur = 5;
+    ctx.beginPath();
+    for (let x = 20; x <= W - 20; x += 18) {
+      const bamp = amp * 0.65 * Math.sin(freq * x - t);
+      ctx.moveTo(x, cx - bamp); ctx.lineTo(x, cx + bamp);
+    }
+    ctx.stroke(); ctx.shadowBlur = 0;
+
+    ctx.fillStyle = '#4ECDC4'; ctx.font = '500 11px Inter, sans-serif';
+    ctx.fillText('E', W - 16, cx - 14);
+    ctx.fillStyle = '#7B5EA7';
+    ctx.fillText('B', W - 16, cx + 22);
+
+    t += speed;
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+</script>
+
+</body>
+</html>
